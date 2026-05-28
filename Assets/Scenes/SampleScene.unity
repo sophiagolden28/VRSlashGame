@@ -745,6 +745,78 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &1821236900
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1821236902}
+  - component: {fileID: 1821236901}
+  m_Layer: 0
+  m_Name: FruitSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1821236901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821236900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73004922da79f8f4cbd61732667bbd9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FruitSpawner
+  centerEyeAnchor: {fileID: 1983679612}
+  fruitModels:
+  - {fileID: 919132149155446097, guid: 44283a93ae2c8ed49ae9c17a2a8f34d5, type: 3}
+  - {fileID: 919132149155446097, guid: 808623a9f41a3f44ba0275a580575515, type: 3}
+  - {fileID: 919132149155446097, guid: 59cd7e340862ef445830fcee33cd7e1c, type: 3}
+  - {fileID: 919132149155446097, guid: 2ef6fb3a220cfc84ebd39a7d3d2307f6, type: 3}
+  - {fileID: 919132149155446097, guid: a33eff14ae7e91f4895596ab31e40ce1, type: 3}
+  - {fileID: 919132149155446097, guid: 0699bbe0327de5b42afae89192b8d32f, type: 3}
+  - {fileID: 919132149155446097, guid: 5da93d4c9ec211d4895ac6e5c79249c9, type: 3}
+  - {fileID: 919132149155446097, guid: 1f62603c0c9136f479b343679b2ae322, type: 3}
+  - {fileID: 919132149155446097, guid: fdf694d0d614855419c56adba001811f, type: 3}
+  - {fileID: 919132149155446097, guid: aa1381e98d463b542961a56839e6eb4d, type: 3}
+  fruitModelScale: 1
+  spawnInterval: 1.5
+  arcDegrees: 120
+  spawnRadiusMin: 1.5
+  spawnRadiusMax: 2.5
+  groundOffset: -1
+  colliderRadius: 0.12
+  maxActiveFruits: 10
+  launchSpeedMin: 4.5
+  launchSpeedMax: 5.5
+  driftRange: 0.35
+--- !u!4 &1821236902
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821236900}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1983679612 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 400002, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
+  m_PrefabInstance: {fileID: 1647480101}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2003188621
 GameObject:
   m_ObjectHideFlags: 0
@@ -806,8 +878,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f38b9c64640fab45b8b083d716319af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InputManager
-  leftHandAnchor: {fileID: 0}
-  rightHandAnchor: {fileID: 0}
+  leftHandAnchor: {fileID: 1647480104}
+  rightHandAnchor: {fileID: 1647480103}
   tipOffset: 0.15
 --- !u!4 &2005770254
 Transform:
@@ -833,3 +905,4 @@ SceneRoots:
   - {fileID: 602645303}
   - {fileID: 2005770254}
   - {fileID: 1647480101}
+  - {fileID: 1821236902}
