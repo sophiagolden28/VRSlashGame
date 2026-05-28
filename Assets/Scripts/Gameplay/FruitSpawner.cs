@@ -83,6 +83,35 @@ public class FruitSpawner : MonoBehaviour
         new Color(0.55f, 0.12f, 0.72f),  // purple (grapes)
     };
 
+    // Kenney models share a single colormap texture — material.color returns white.
+    // Map fruit type (identified by model name substring) to a particle tint colour.
+    private static readonly Dictionary<string, Color> KenneyFruitColors = new Dictionary<string, Color>
+    {
+        { "apple",      new Color(0.95f, 0.18f, 0.18f) },  // red
+        { "banana",     new Color(1.00f, 0.85f, 0.10f) },  // yellow
+        { "coconut",    new Color(0.60f, 0.40f, 0.20f) },  // brown
+        { "lemon",      new Color(1.00f, 0.95f, 0.20f) },  // bright yellow
+        { "lime",       new Color(0.25f, 0.80f, 0.20f) },  // bright green
+        { "mango",      new Color(1.00f, 0.60f, 0.05f) },  // deep orange
+        { "orange",     new Color(1.00f, 0.52f, 0.05f) },  // orange
+        { "pineapple",  new Color(1.00f, 0.85f, 0.15f) },  // golden yellow
+        { "strawberry", new Color(0.95f, 0.15f, 0.25f) },  // deep red
+        { "watermelon", new Color(0.92f, 0.18f, 0.35f) },  // pink-red flesh
+    };
+
+    /// <summary>
+    /// Returns the representative particle colour for a Kenney model name by
+    /// scanning for a known fruit-type substring. Falls back to orange if unknown.
+    /// </summary>
+    private static Color GetKenneyFruitColor(string modelName)
+    {
+        string lower = modelName.ToLowerInvariant();
+        foreach (var pair in KenneyFruitColors)
+            if (lower.Contains(pair.Key))
+                return pair.Value;
+        return new Color(1.00f, 0.52f, 0.05f); // fallback: orange
+    }
+
     // ── State ─────────────────────────────────────────────────────────────────
 
     private bool             _isSpawning;
@@ -211,17 +240,19 @@ public class FruitSpawner : MonoBehaviour
         col.radius     = colliderRadius;
 
         // ── Visual ────────────────────────────────────────────────────────────
-        if (fruitModels != null && fruitModels.Length > 0)
-            BuildKenneyVisual(go);
-        else
-            BuildSphereVisual(go);
+        // Both build methods return the fruit's representative colour so we can
+        // store it on the Fruit component for particle tinting on slice.
+        Color fruitColor = (fruitModels != null && fruitModels.Length > 0)
+            ? BuildKenneyVisual(go)
+            : BuildSphereVisual(go);
 
         // ── Fruit component — add last so Awake() sees the Rigidbody already.
         var fruit = go.AddComponent<Fruit>();
+        fruit.SetColor(fruitColor);
         return fruit;
     }
 
-    private void BuildKenneyVisual(GameObject parent)
+    private Color BuildKenneyVisual(GameObject parent)
     {
         int idx    = Random.Range(0, fruitModels.Length);
         var source = fruitModels[idx];
@@ -236,9 +267,12 @@ public class FruitSpawner : MonoBehaviour
         // is the sole trigger.
         foreach (var c in model.GetComponentsInChildren<Collider>())
             Destroy(c);
+
+        // Kenney models share a colormap atlas — identify the fruit type by name.
+        return GetKenneyFruitColor(source.name);
     }
 
-    private void BuildSphereVisual(GameObject parent)
+    private Color BuildSphereVisual(GameObject parent)
     {
         // CreatePrimitive adds its own SphereCollider — remove it immediately so only
         // the parent trigger collider participates in physics queries.
@@ -257,6 +291,7 @@ public class FruitSpawner : MonoBehaviour
         var   mpb = new MaterialPropertyBlock();
         mpb.SetColor("_BaseColor", c);
         sphere.GetComponent<Renderer>().SetPropertyBlock(mpb);
+        return c;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

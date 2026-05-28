@@ -32,6 +32,24 @@ public class Fruit : MonoBehaviour
     private bool    _launched;
     private bool    _alive = true;
 
+    // ── Colour ────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// The display colour set by FruitSpawner at spawn time.
+    /// BladeController reads this before calling Slice() so the juice-burst
+    /// particles can match the fruit.
+    /// </summary>
+    public Color FruitColor { get; private set; }
+
+    /// <summary>True once Slice() has run successfully (fruit was alive).</summary>
+    public bool IsSliced { get; private set; }
+
+    /// <summary>
+    /// Called by FruitSpawner immediately after BuildFruit to record the
+    /// representative display colour (used for particle tinting on slice).
+    /// </summary>
+    public void SetColor(Color color) => FruitColor = color;
+
     // ── Public API ────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -47,16 +65,20 @@ public class Fruit : MonoBehaviour
     }
 
     /// <summary>
-    /// Called by the slash detector when this fruit is successfully hit.
-    /// Marks the fruit dead without penalising the player.
+    /// Called by BladeController when this fruit is hit at slash speed.
+    /// Returns true if the fruit was alive and is now sliced (caller must then call
+    /// GameManager.RegisterSlice exactly once). Returns false if already dead —
+    /// guards against double-scoring when OnTriggerEnter and OnTriggerStay both
+    /// fire for the same overlap in the same frame.
     /// TODO: spawn slice halves + juice particles here.
     /// </summary>
-    public void Slice()
+    public bool Slice()
     {
-        if (!_alive) return;
-        _alive = false;
-        // Slash detection calls GameManager.RegisterSlice() — not this method's job.
+        if (!_alive) return false;
+        _alive   = false;
+        IsSliced = true;
         Destroy(gameObject);
+        return true;
     }
 
     /// <summary>
