@@ -1,0 +1,90 @@
+# =========================
+# Unity Generated Folders
+# =========================
+
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+UserSettings/
+
+# =========================
+# Addressables / Asset Bundles
+# =========================
+
+ServerData/
+StreamingAssets/aa.meta
+StreamingAssets/aa/
+
+# =========================
+# Visual Studio / Rider
+# =========================
+
+.vs/
+.idea/
+.gradle/
+ExportedObj/
+.consulo/
+
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# JetBrains Rider
+*.DotSettings.user
+
+# =========================
+# Unity Cache
+# =========================
+
+/Assets/AssetStoreTools*
+
+# =========================
+# Build Files
+# =========================
+
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.exe
+*.ipa
+
+# =========================
+# Crash Reports
+# =========================
+
+sysinfo.txt
+
+# =========================
+# macOS
+# =========================
+
+.DS_Store
+
+# =========================
+# Windows
+# =========================
+
+Thumbs.db
+desktop.ini
+
+# =========================
+# Linux
+# =========================
+
+*~
