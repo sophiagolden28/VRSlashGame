@@ -5,6 +5,12 @@ using UnityEngine;
 /// All gameplay systems should call RegisterSlice() / RegisterMiss() rather
 /// than mutating state directly. This class fires GameEvents so the rest of
 /// the codebase can react without coupling to GameManager.
+///
+/// Combo tiers (consecutive slices without a miss):
+///   1–4   → 1× multiplier (no badge shown)
+///   5–9   → 2× multiplier
+///   10+   → 3× multiplier
+/// A miss resets Combo to 0.
 /// </summary>
 public class GameManager : MonoBehaviour
 {
@@ -16,19 +22,13 @@ public class GameManager : MonoBehaviour
     [Tooltip("Lives the player starts with each session.")]
     [SerializeField] private int startingLives = 3;
 
-    [Tooltip("Number of consecutive slices required before the combo multiplier activates.")]
-    [SerializeField] private int comboStartsAt = 3;
-
     // ── Public read-only state ────────────────────────────────────────────────
 
+    /// <summary>Consecutive successful slices without a miss.</summary>
     public int  Score        { get; private set; }
     public int  Lives        { get; private set; }
     public int  Combo        { get; private set; }
     public bool IsGameActive { get; private set; }
-
-    // ── Private ───────────────────────────────────────────────────────────────
-
-    private int _consecutiveSlices;
 
     // ── Unity lifecycle ───────────────────────────────────────────────────────
 
@@ -51,41 +51,33 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void StartGame()
     {
-        Score              = 0;
-        Lives              = startingLives;
-        Combo              = 0;
-        _consecutiveSlices = 0;
-        IsGameActive       = true;
+        Score        = 0;
+        Lives        = startingLives;
+        Combo        = 0;
+        IsGameActive = true;
         GameEvents.RaiseGameStart();
         Debug.Log("[GameManager] Game started.");
     }
 
     /// <summary>
     /// Call this when a fruit is successfully sliced.
-    /// Updates score and combo, then fires OnFruitSliced (and OnComboChanged if needed).
+    /// Increments Combo, applies the tier multiplier, and fires events.
     /// </summary>
     /// <param name="basePoints">Raw point value of the fruit before multiplier.</param>
     public void RegisterSlice(int basePoints)
     {
         if (!IsGameActive) return;
 
-        _consecutiveSlices++;
+        Combo++;
 
-        // Combo activates after comboStartsAt consecutive slices; each extra slice
-        // increments the multiplier by 1.
-        int newCombo = Mathf.Max(0, _consecutiveSlices - comboStartsAt + 1);
-        if (newCombo != Combo)
-        {
-            Combo = newCombo;
-            GameEvents.RaiseComboChanged(Combo);
-        }
-
-        int multiplier = Combo > 0 ? Combo + 1 : 1;
+        // 1x by default, 2x at 5 consecutive, 3x at 10+.
+        int multiplier = Combo >= 10 ? 3 : Combo >= 5 ? 2 : 1;
         int earned     = basePoints * multiplier;
         Score         += earned;
 
         GameEvents.RaiseFruitSliced(earned, Score);
-        Debug.Log($"[GameManager] Slice registered. +{earned} pts (x{multiplier}). Total: {Score}. Combo: {Combo}");
+        GameEvents.RaiseComboChanged(Combo);
+        Debug.Log($"[GameManager] Slice +{earned} pts (x{multiplier}). Total: {Score}. Combo: {Combo}");
     }
 
     /// <summary>
@@ -97,13 +89,8 @@ public class GameManager : MonoBehaviour
     {
         if (!IsGameActive) return;
 
-        // Break combo
-        _consecutiveSlices = 0;
-        if (Combo != 0)
-        {
-            Combo = 0;
-            GameEvents.RaiseComboChanged(Combo);
-        }
+        Combo = 0;
+        GameEvents.RaiseComboChanged(0);
 
         Lives--;
         GameEvents.RaiseFruitMissed(Lives);

@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "mcp__unity-mcp__Unity_RunCommand"
+      "mcp__unity-mcp__Unity_RunCommand",
+      "mcp__unity-mcp__Unity_GetConsoleLogs"
     ]
   }
 }

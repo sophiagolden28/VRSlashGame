@@ -1,0 +1,84 @@
+{
+  "conceptTitle": "Electric Field",
+  "description": "Visualize field lines between a positive and negative charge.",
+  "layers": [
+    { "id": "objects", "displayName": "Charges",     "defaultVisible": true },
+    { "id": "field",   "displayName": "Field Lines", "defaultVisible": true },
+    { "id": "labels",  "displayName": "Labels",      "defaultVisible": true }
+  ],
+  "objects": [
+    {
+      "id": "chargePos",
+      "modelPath": "ConceptViz/Sphere",
+      "position": { "x": -0.15, "y": 0.0, "z": 0.0 },
+      "rotation": { "x": 0, "y": 0, "z": 0 },
+      "scale":    { "x": 0.06, "y": 0.06, "z": 0.06 },
+      "layerIds": ["objects"]
+    },
+    {
+      "id": "chargeNeg",
+      "modelPath": "ConceptViz/Sphere",
+      "position": { "x": 0.15, "y": 0.0, "z": 0.0 },
+      "rotation": { "x": 0, "y": 0, "z": 0 },
+      "scale":    { "x": 0.06, "y": 0.06, "z": 0.06 },
+      "layerIds": ["objects"]
+    },
+    {
+      "id": "chargeThird",
+      "modelPath": "ConceptViz/Sphere",
+      "position": { "x": 0.0, "y": 0.18, "z": 0.0 },
+      "rotation": { "x": 0, "y": 0, "z": 0 },
+      "scale":    { "x": 0.04, "y": 0.04, "z": 0.04 },
+      "layerIds": ["objects"]
+    }
+  ],
+  "fieldLines": [
+    {
+      "id": "fl_pos_neg",
+      "fromObjectId": "chargePos",
+      "toObjectId": "chargeNeg",
+      "color": { "r": 1.0, "g": 0.45, "b": 0.1, "a": 1.0 },
+      "width": 0.005,
+      "layerId": "field"
+    },
+    {
+      "id": "fl_pos_third",
+      "fromObjectId": "chargePos",
+      "toObjectId": "chargeThird",
+      "color": { "r": 0.3, "g": 0.8, "b": 1.0, "a": 1.0 },
+      "width": 0.004,
+      "layerId": "field"
+    },
+    {
+      "id": "fl_third_neg",
+      "fromObjectId": "chargeThird",
+      "toObjectId": "chargeNeg",
+      "color": { "r": 0.3, "g": 0.8, "b": 1.0, "a": 1.0 },
+      "width": 0.004,
+      "layerId": "field"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "ann_pos",
+      "targetObjectId": "chargePos",
+      "text": "+Q",
+      "offset": { "x": 0, "y": 0.12, "z": 0 },
+      "layerId": "labels"
+    },
+    {
+      "id": "ann_neg",
+      "targetObjectId": "chargeNeg",
+      "text": "−Q",
+      "offset": { "x": 0, "y": 0.12, "z": 0 },
+      "layerId": "labels"
+    },
+    {
+      "id": "ann_third",
+      "targetObjectId": "chargeThird",
+      "text": "test charge",
+      "offset": { "x": 0, "y": 0.09, "z": 0 },
+      "layerId": "labels"
+    }
+  ]
+}

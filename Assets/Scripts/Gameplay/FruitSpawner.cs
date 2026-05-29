@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Spawns fruits in a wide arc in front of the player every spawnInterval seconds.
+/// Spawns fruits in a wide arc in front of the player.
 ///
-/// Spawn position: ground level (centerEyeAnchor.y - 1.5 m) in a horizontal arc.
-/// Launch: mostly upward so fruits arc to arm height, with small random drift for
-/// varied paths. Gravity is handled by the Fruit component.
+/// Difficulty ramp:
+///   • Spawn interval lerps from spawnInterval down to minSpawnInterval
+///     over difficultyRampDuration seconds.
+///   • After multiSpawnStartTime seconds, each wave spawns 1–maxSimultaneousSpawn
+///     fruits with slight lateral offsets so they don't all follow the same arc.
 ///
 /// Model priority:
 ///   1. fruitModels[] — populate with Kenney Food Kit FBX references via Inspector.
@@ -14,7 +16,7 @@ using UnityEngine;
 ///
 /// Lifecycle:
 ///   • Spawning starts immediately in Play mode for testing.
-///   • OnGameStart clears test fruits and restarts clean.
+///   • OnGameStart resets _sessionTime, clears test fruits, and restarts clean.
 ///   • OnGameOver kills all live fruits silently (no miss penalty).
 /// </summary>
 public class FruitSpawner : MonoBehaviour
@@ -37,8 +39,20 @@ public class FruitSpawner : MonoBehaviour
     // ── Spawn ─────────────────────────────────────────────────────────────────
 
     [Header("Spawn")]
-    [Tooltip("Seconds between each fruit.")]
+    [Tooltip("Starting seconds between each wave (difficulty ramp begins here).")]
     [SerializeField] private float spawnInterval = 1.5f;
+
+    [Tooltip("Fastest spawn interval — reached after difficultyRampDuration seconds.")]
+    [SerializeField] private float minSpawnInterval = 0.35f;
+
+    [Tooltip("Seconds of game time to ramp from spawnInterval down to minSpawnInterval.")]
+    [SerializeField] private float difficultyRampDuration = 120f;
+
+    [Tooltip("Session time (s) after which multi-fruit waves begin.")]
+    [SerializeField] private float multiSpawnStartTime = 30f;
+
+    [Tooltip("Maximum fruits spawned per wave after multiSpawnStartTime (randomly 1 to this).")]
+    [SerializeField] private int   maxSimultaneousSpawn = 3;
 
     [Tooltip("Total horizontal arc in front of the player (degrees). 120° = 60° each side.")]
     [SerializeField] private float arcDegrees = 120f;
@@ -114,11 +128,22 @@ public class FruitSpawner : MonoBehaviour
 
     // ── State ─────────────────────────────────────────────────────────────────
 
-    private bool             _isSpawning;
-    private float            _timer;
+    private bool  _isSpawning;
+    private float _timer;
+    private float _sessionTime;   // seconds since last game start; drives difficulty ramp
 
     // List<Fruit> so we can call Kill() directly without GetComponent in the hot path.
     private readonly List<Fruit> _activeFruits = new List<Fruit>(16);
+
+    // ── Computed difficulty values ────────────────────────────────────────────
+
+    /// <summary>
+    /// Current spawn interval, lerped from spawnInterval toward minSpawnInterval
+    /// based on elapsed session time.
+    /// </summary>
+    private float CurrentInterval =>
+        Mathf.Lerp(spawnInterval, minSpawnInterval,
+            Mathf.Clamp01(_sessionTime / difficultyRampDuration));
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -146,6 +171,8 @@ public class FruitSpawner : MonoBehaviour
     {
         if (!_isSpawning) return;
 
+        _sessionTime += Time.deltaTime;
+
         // Clean null entries (fruits destroyed by Fruit.OnMissed / Fruit.Slice)
         // Reverse loop — no allocation, safe for removal.
         for (int i = _activeFruits.Count - 1; i >= 0; i--)
@@ -154,10 +181,25 @@ public class FruitSpawner : MonoBehaviour
         if (_activeFruits.Count >= maxActiveFruits) return;
 
         _timer += Time.deltaTime;
-        if (_timer >= spawnInterval)
+        if (_timer >= CurrentInterval)
         {
             _timer = 0f;
-            SpawnFruit();
+
+            // After multiSpawnStartTime seconds, send 1–maxSimultaneousSpawn fruits
+            // per wave; otherwise always one.
+            int spawnCount = _sessionTime < multiSpawnStartTime
+                ? 1
+                : Random.Range(1, maxSimultaneousSpawn + 1);
+
+            for (int s = 0; s < spawnCount; s++)
+            {
+                if (_activeFruits.Count >= maxActiveFruits) break;
+
+                // Extra fruits get a slight lateral nudge so they fan out rather
+                // than stacking on the same arc point.
+                float lateralOffset = spawnCount > 1 ? Random.Range(-0.40f, 0.40f) : 0f;
+                SpawnFruit(lateralOffset);
+            }
         }
     }
 
@@ -168,8 +210,9 @@ public class FruitSpawner : MonoBehaviour
         // Purge any fruits from the pre-game test phase silently.
         KillAllFruits();
 
-        _isSpawning = true;
-        _timer      = spawnInterval; // spawn immediately at game start
+        _isSpawning  = true;
+        _sessionTime = 0f;
+        _timer       = CurrentInterval; // trigger a spawn on the very first Update
     }
 
     private void HandleGameOver()
@@ -180,7 +223,7 @@ public class FruitSpawner : MonoBehaviour
 
     // ── Spawn ─────────────────────────────────────────────────────────────────
 
-    private void SpawnFruit()
+    private void SpawnFruit(float lateralOffset = 0f)
     {
         if (centerEyeAnchor == null)
         {
@@ -195,21 +238,25 @@ public class FruitSpawner : MonoBehaviour
         Vector3 forward = Vector3.ProjectOnPlane(centerEyeAnchor.forward, Vector3.up).normalized;
         Vector3 right   = Vector3.Cross(Vector3.up, forward); // right relative to head facing
 
-        float   angle   = Random.Range(-arcDegrees * 0.5f, arcDegrees * 0.5f) * Mathf.Deg2Rad;
-        float   radius  = Random.Range(spawnRadiusMin, spawnRadiusMax);
+        float   angle  = Random.Range(-arcDegrees * 0.5f, arcDegrees * 0.5f) * Mathf.Deg2Rad;
+        float   radius = Random.Range(spawnRadiusMin, spawnRadiusMax);
 
         // Direction in the horizontal arc, then down to ground level.
         // EyeLevel tracking: y=0 is eye height, ground at eye.y - 1.5 m.
-        Vector3 spawnPos   = eyePos
-                           + (Mathf.Cos(angle) * forward + Mathf.Sin(angle) * right) * radius;
-        spawnPos.y         = eyePos.y + groundOffset;
+        Vector3 spawnPos = eyePos
+                         + (Mathf.Cos(angle) * forward + Mathf.Sin(angle) * right) * radius;
+        spawnPos.y       = eyePos.y + groundOffset;
+
+        // Apply lateral offset for multi-spawn wave separation.
+        if (lateralOffset != 0f)
+            spawnPos += right * lateralOffset;
 
         // ── Launch velocity ──────────────────────────────────────────────────
         // peak_height = v² / (2g). At 4.5 m/s: h ≈ 1.03 m above ground ≈ arm height.
         // Small world-space drift makes every fruit take a different path.
-        float   vy             = Random.Range(launchSpeedMin, launchSpeedMax);
-        float   driftRight     = Random.Range(-driftRange, driftRange);
-        float   driftForward   = Random.Range(-driftRange, driftRange);
+        float   vy           = Random.Range(launchSpeedMin, launchSpeedMax);
+        float   driftRight   = Random.Range(-driftRange, driftRange);
+        float   driftForward = Random.Range(-driftRange, driftRange);
         Vector3 launchVelocity = Vector3.up * vy
                                + right   * driftRight
                                + forward * driftForward;
@@ -235,9 +282,9 @@ public class FruitSpawner : MonoBehaviour
 
         // ── Trigger collider — SphereCollider instead of MeshCollider
         //    (FBX MeshColliders don't work as triggers).
-        var col        = go.AddComponent<SphereCollider>();
-        col.isTrigger  = true;
-        col.radius     = colliderRadius;
+        var col       = go.AddComponent<SphereCollider>();
+        col.isTrigger = true;
+        col.radius    = colliderRadius;
 
         // ── Visual ────────────────────────────────────────────────────────────
         // Both build methods return the fruit's representative colour so we can

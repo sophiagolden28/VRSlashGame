@@ -13,6 +13,11 @@ using TMPro;
 /// (title / game-over moments when the player is standing still), then stays
 /// fixed in world space during gameplay so it does not float around mid-swing.
 ///
+/// Combo badge rules (Combo = consecutive slices without miss):
+///   Combo &lt; 5  → badge hidden
+///   Combo 5–9  → "x2 COMBO" in cyan
+///   Combo 10+  → "x3 COMBO" in gold
+///
 /// VR canvas rules observed:
 ///   • renderMode = WorldSpace — canvas is NEVER parented to the camera.
 ///   • Position derived from centerEyeAnchor; forward projected onto the
@@ -50,6 +55,11 @@ public class GameUI : MonoBehaviour
     [Header("Game Over")]
     [SerializeField] private TMP_Text gameOverScoreText;
     [SerializeField] private TMP_Text gameOverPromptText;
+
+    // ── Combo badge colours ────────────────────────────────────────────────────
+
+    private static readonly Color ComboColorX2 = new Color(0.25f, 0.85f, 1.00f); // cyan
+    private static readonly Color ComboColorX3 = new Color(1.00f, 0.80f, 0.10f); // gold
 
     // ── Private state ─────────────────────────────────────────────────────────
 
@@ -197,15 +207,27 @@ public class GameUI : MonoBehaviour
 
         if (comboText != null)
         {
-            bool active = _combo > 0;
-            comboText.gameObject.SetActive(active);
-            if (active)
-                comboText.text = "x" + (_combo + 1) + "\nCOMBO";
+            if (_combo >= 10)
+            {
+                comboText.gameObject.SetActive(true);
+                comboText.text  = "x3\nCOMBO";
+                comboText.color = ComboColorX3;
+            }
+            else if (_combo >= 5)
+            {
+                comboText.gameObject.SetActive(true);
+                comboText.text  = "x2\nCOMBO";
+                comboText.color = ComboColorX2;
+            }
+            else
+            {
+                comboText.gameObject.SetActive(false);
+            }
         }
 
         // World-space canvases don't rebuild automatically every frame — they wait
-        // for a scene-change event (e.g. a new renderer appearing when a fruit
-        // spawns). Force an immediate rebuild so HUD changes are visible right away.
+        // for a scene-change event. Force an immediate rebuild so HUD changes are
+        // visible right away.
         Canvas.ForceUpdateCanvases();
     }
 
