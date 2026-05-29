@@ -2462,6 +2462,7 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void GameUI_ShowHUD_mBAD37DB6A54FC891FB577B87
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void GameUI_ShowGameOver_mE3A940DBF03880F159E10FFF4F39B864C439451B (GameUI_t131F7F7F82473CAFC8221B739FABB71C0709C737* __this, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* GameUI_BuildLivesString_m6F813BAD300F5E5D458F7E4D46E02B30247B8ED0 (int32_t ___0_lives, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_Concat_m8855A6DE10F84DA7F4EC113CADDB59873A25573B (String_t* ___0_str0, String_t* ___1_str1, String_t* ___2_str2, const RuntimeMethod* method) ;
+IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void Canvas_ForceUpdateCanvases_m6ECDBC5E85ADA3301BB20611753C45769F15EB51 (const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void StringBuilder__ctor_mCD797D942316CB356205FD96415B0B7581CDAD60 (StringBuilder_t* __this, String_t* ___0_value, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR StringBuilder_t* StringBuilder_Append_m08904D74E0C78E5F36DCD9C9303BDD07886D9F7D (StringBuilder_t* __this, String_t* ___0_value, const RuntimeMethod* method) ;
 IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* String_TrimEnd_m25B1EA658EE07ADFED51FED61D630E5625336AB5 (String_t* __this, const RuntimeMethod* method) ;
@@ -7093,7 +7094,9 @@ IL_0052:
 
 IL_00a8:
 	{
-		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:205>
+		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:209>
+		Canvas_ForceUpdateCanvases_m6ECDBC5E85ADA3301BB20611753C45769F15EB51(NULL);
+		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:210>
 		return;
 	}
 }
@@ -7112,30 +7115,30 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR String_t* GameUI_BuildLivesString_m6F813BAD30
 	StringBuilder_t* V_0 = NULL;
 	int32_t V_1 = 0;
 	{
-		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:211>
+		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:216>
 		StringBuilder_t* L_0 = (StringBuilder_t*)il2cpp_codegen_object_new(StringBuilder_t_il2cpp_TypeInfo_var);
 		StringBuilder__ctor_mCD797D942316CB356205FD96415B0B7581CDAD60(L_0, _stringLiteralBC647116169EA61AD96B3F8AC093AF2C2F3A992F, NULL);
 		V_0 = L_0;
-		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:212>
+		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:217>
 		V_1 = 0;
 		goto IL_001f;
 	}
 
 IL_000f:
 	{
-		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:213>
+		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:218>
 		StringBuilder_t* L_1 = V_0;
 		NullCheck(L_1);
 		StringBuilder_t* L_2;
 		L_2 = StringBuilder_Append_m08904D74E0C78E5F36DCD9C9303BDD07886D9F7D(L_1, _stringLiteral88811B550C7237DE458DD2035868CFB2E11753E6, NULL);
-		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:212>
+		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:217>
 		int32_t L_3 = V_1;
 		V_1 = ((int32_t)il2cpp_codegen_add(L_3, 1));
 	}
 
 IL_001f:
 	{
-		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:212>
+		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:217>
 		int32_t L_4 = V_1;
 		int32_t L_5 = ___0_lives;
 		int32_t L_6;
@@ -7146,7 +7149,7 @@ IL_001f:
 		}
 	}
 	{
-		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:214>
+		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:219>
 		int32_t L_7 = ___0_lives;
 		if ((((int32_t)L_7) > ((int32_t)0)))
 		{
@@ -7154,7 +7157,7 @@ IL_001f:
 		}
 	}
 	{
-		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:215>
+		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:220>
 		StringBuilder_t* L_8 = V_0;
 		NullCheck(L_8);
 		StringBuilder_t* L_9;
@@ -7163,7 +7166,7 @@ IL_001f:
 
 IL_0039:
 	{
-		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:216>
+		//<source_info:C:/Users/sophi/My project/Assets/Scripts/UI/GameUI.cs:221>
 		StringBuilder_t* L_10 = V_0;
 		NullCheck(L_10);
 		String_t* L_11;
